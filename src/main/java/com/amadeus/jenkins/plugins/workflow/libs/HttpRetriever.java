@@ -88,6 +88,24 @@ public class HttpRetriever extends LibraryRetriever {
     private final String httpURL;
 
     /**
+     * The template of the URL where to retrieve the YAML file defining the dependencies of the library.
+     * <p>
+     * Replaces the pattern ${library.NAME.version} in the URL (if found in the
+     * shared library URL) either by the default version specified in the admin
+     * configuration page or by the user in the Jenkinsfile @Library call.
+     * <p>
+     * The YAML file must have the following format:
+     * <p>
+     * name: "mylibrary"
+     * dependencies:
+     * - my-dependency@my.dependency.version
+     * <p>
+     * Please note that, in the example above, my-dependency must be a declared Shared Library in either the current
+     * folder, or one above, or in the Admin section of Jenkins (so that the plugin knows where to download it).
+     */
+    private final String dependenciesFileURL;
+
+    /**
      * Name of the credential to use if we need authentication to download the library archive
      */
     private final String credentialsId;
@@ -104,15 +122,18 @@ public class HttpRetriever extends LibraryRetriever {
     /**
      * Constructor
      *
-     * @param httpURL        URL template where the library can be downloaded
-     * @param credentialsId  The credentials ID that can be used to do an authenticated download
-     * @param preemptiveAuth Send the basic authentication response before the server gives an unauthorized response
+     * @param httpURL             URL template where the library can be downloaded
+     * @param dependenciesFileURL URL template where the library dependencies file can be downloaded
+     * @param credentialsId       The credentials ID that can be used to do an authenticated download
+     * @param preemptiveAuth      Send the basic authentication response before the server gives an unauthorized response
      */
     @DataBoundConstructor
-    public HttpRetriever(@Nonnull String httpURL, @Nonnull String credentialsId, boolean preemptiveAuth) {
+    public HttpRetriever(@Nonnull String httpURL, String dependenciesFileURL, @Nonnull String credentialsId,
+                         boolean preemptiveAuth) {
         this.httpURL = httpURL;
         this.credentialsId = credentialsId;
         this.preemptiveAuth = preemptiveAuth;
+        this.dependenciesFileURL = dependenciesFileURL;
     }
 
     Jenkins getJenkins() {
@@ -136,6 +157,16 @@ public class HttpRetriever extends LibraryRetriever {
      */
     public String getHttpURL() {
         return this.httpURL;
+    }
+
+
+    /**
+     * Accessor for the template of the URL where to retrieve the YAML file defining the dependencies of the library.
+     *
+     * @return URL template where to retrieve the YAML file defining the dependencies of the library
+     */
+    public String getDependenciesFileURL() {
+        return this.dependenciesFileURL;
     }
 
     /**

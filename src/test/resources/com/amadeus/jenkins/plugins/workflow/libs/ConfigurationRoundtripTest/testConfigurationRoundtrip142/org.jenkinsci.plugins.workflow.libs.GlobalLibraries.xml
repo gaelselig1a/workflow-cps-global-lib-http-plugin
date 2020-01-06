@@ -4,8 +4,7 @@
     <org.jenkinsci.plugins.workflow.libs.LibraryConfiguration>
       <name>foo</name>
       <retriever class="com.amadeus.jenkins.plugins.workflow.libs.HttpRetriever">
-        <httpURL>http://example.com/${library.pipeline-air-libraries.version}/archive-${library.pipeline-air-libraries.version}.zip</httpURL>
-        <dependenciesFileURL>http://example.com/${library.pipeline-air-libraries.version}/info.yaml</dependenciesFileURL>
+        <httpURL>http://example.com/</httpURL>
         <credentialsId>someCredentials</credentialsId>
         <preemptiveAuth>true</preemptiveAuth>
       </retriever>

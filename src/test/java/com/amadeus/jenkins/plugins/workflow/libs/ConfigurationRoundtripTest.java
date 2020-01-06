@@ -21,6 +21,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConfigurationRoundtripTest {
+    public static final String ZIP = "http://example.com/${library.pipeline-air-libraries.version}/archive-${library.pipeline-air-libraries.version}.zip";
+    public static final String YAML = "http://example.com/${library.pipeline-air-libraries.version}/info.yaml";
     @Rule
     public JenkinsRule j = new JenkinsRule();
 
@@ -39,7 +41,7 @@ public class ConfigurationRoundtripTest {
         assertThat(globalLibraries.getLibraries()).isEmpty();
         LibraryConfiguration originalTestLib = new LibraryConfiguration(
                 "foo",
-                new HttpRetriever("http://example.com/", credentials.getId(), true)
+                new HttpRetriever(ZIP, YAML, credentials.getId(), true)
         );
         globalLibraries.getLibraries().add(originalTestLib);
         j.configRoundtrip();
@@ -51,7 +53,8 @@ public class ConfigurationRoundtripTest {
         assertThat(testLib.getName()).isEqualTo("foo");
         assertThat(testLib.getRetriever()).isExactlyInstanceOf(HttpRetriever.class);
         HttpRetriever retriever = (HttpRetriever) testLib.getRetriever();
-        assertThat(retriever.getHttpURL()).isEqualTo("http://example.com/");
+        assertThat(retriever.getHttpURL()).isEqualTo("http://example.com/${library.pipeline-air-libraries.version}/archive-${library.pipeline-air-libraries.version}.zip");
+        assertThat(retriever.getDependenciesFileURL()).isEqualTo("http://example.com/${library.pipeline-air-libraries.version}/info.yaml");
         assertThat(retriever.getCredentialsId())
                 .isNotNull()
                 .isEqualTo(credentials.getId());
@@ -67,7 +70,7 @@ public class ConfigurationRoundtripTest {
 
         LibraryConfiguration lib = new LibraryConfiguration(
                 "foo",
-                new HttpRetriever("http://example.com/", credentials.getId(), true)
+                new HttpRetriever(ZIP, YAML, credentials.getId(), true)
         );
         globalLibraries.getLibraries().clear();
         globalLibraries.getLibraries().add(lib);
@@ -114,5 +117,24 @@ public class ConfigurationRoundtripTest {
                 .isNotNull()
                 .isEqualTo(credentials.getId());
         assertThat(retriever.isPreemptiveAuth()).isFalse();
+    }
+
+
+    @Test
+    @LocalData
+    public void testConfigurationRoundtrip142() throws Exception {
+        assertThat(globalLibraries.getLibraries()).isNotEmpty();
+        List<LibraryConfiguration> libs = globalLibraries.getLibraries();
+        assertThat(libs).hasSize(1);
+        LibraryConfiguration testLib = globalLibraries.getLibraries().get(0);
+        assertThat(testLib.getName()).isEqualTo("foo");
+        assertThat(testLib.getRetriever()).isExactlyInstanceOf(HttpRetriever.class);
+        HttpRetriever retriever = (HttpRetriever) testLib.getRetriever();
+        assertThat(retriever.getHttpURL()).isEqualTo("http://example.com/");
+        assertThat(retriever.getDependenciesFileURL()).isNull();
+        assertThat(retriever.getCredentialsId())
+                .isNotNull()
+                .isEqualTo(credentials.getId());
+        assertThat(retriever.isPreemptiveAuth()).isTrue();
     }
 }

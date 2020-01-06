@@ -251,7 +251,7 @@ public class HttpRetrieverTest {
         private boolean preemptiveAuth = false;
 
         public HttpRetrieverStub(String url) {
-            super(url, "credentialsId", false);
+            super(url, "", "credentialsId", false);
         }
 
         @Override

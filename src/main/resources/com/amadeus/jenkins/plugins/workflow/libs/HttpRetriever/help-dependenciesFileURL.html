@@ -1,0 +1,13 @@
+<div>
+    The template of the URL where to retrieve the YAML file defining the dependencies of the library.
+    Replaces the pattern ${library.NAME.version} in the URL (if found in the shared library URL)
+    either by the default version specified in the admin configuration page or by the user in the Jenkinsfile
+    @Library call. The YAML file must have the following format:
+    <code><br/>
+        name: "mylibrary"<br/>
+        dependencies:<br/>
+        - my-dependency@my.dependency.version<br/>
+    </code>
+    Please note that, in the example above, my-dependency must be a declared Shared Library in either the current
+    folder, or one above, or in the Admin section of Jenkins (so that the plugin knows where to download it).
+</div>

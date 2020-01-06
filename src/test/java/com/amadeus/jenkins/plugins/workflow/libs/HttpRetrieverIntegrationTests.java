@@ -205,7 +205,7 @@ public class HttpRetrieverIntegrationTests {
         }
         globalLibraries.getLibraries().add(new LibraryConfiguration(
                 libraryName,
-                new HttpRetriever(urlBuilder.apply(libraryName), credentials.getId(), withPreemptiveAuth)
+                new HttpRetriever(urlBuilder.apply(libraryName), "", credentials.getId(), withPreemptiveAuth)
         ));
         WorkflowJob p = j.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(importScript, true));
@@ -234,7 +234,7 @@ public class HttpRetrieverIntegrationTests {
                         .willReturn(WireMock.notFound()));
         globalLibraries.getLibraries().add(new LibraryConfiguration(
                 libraryName,
-                new HttpRetriever(wireMock.url(libraryName + ".zip"), credentials.getId(), true)
+                new HttpRetriever(wireMock.url(libraryName + ".zip"), "", credentials.getId(), true)
         ));
         WorkflowJob p = j.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(importScript, true));

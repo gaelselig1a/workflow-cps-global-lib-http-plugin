@@ -31,6 +31,10 @@ THE SOFTWARE.
     <f:textbox/>
 </f:entry>
 
+<f:entry title="Dependencies file URL" field="dependenciesFileURL">
+    <f:textbox/>
+</f:entry>
+
 <f:entry title="Credentials" field="credentialsId">
     <c:select/>
 </f:entry>
