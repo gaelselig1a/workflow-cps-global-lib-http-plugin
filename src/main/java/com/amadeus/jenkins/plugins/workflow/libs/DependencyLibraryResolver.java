@@ -68,7 +68,7 @@ public class DependencyLibraryResolver extends LibraryResolver {
                     LibraryRetriever retriever = cfg.getRetriever();
                     if (retriever instanceof HttpRetriever) {
                         HttpRetriever httpRetriever = (HttpRetriever) retriever;
-                        Map<String, String> dependencies = httpRetriever.retrieveDependencies(libraryVersion);
+                        Map<String, String> dependencies = httpRetriever.retrieveDependencies(libraryVersion, libraryName); // where the magic happens
                         for (Map.Entry<String, String> dependency : dependencies.entrySet()) {
                             String dependencyName = dependency.getKey();
                             String dependencyVersion = dependency.getValue();

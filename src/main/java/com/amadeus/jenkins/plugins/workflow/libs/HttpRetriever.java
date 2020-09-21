@@ -56,6 +56,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -486,12 +487,65 @@ public class HttpRetriever extends LibraryRetriever {
         context.setAuthCache(authCache);
     }
 
+    /**
+     * Retreive the dependencies of the given library by reading the dependenciesFileURL file
+     * @param libraryVersion: the version of the library from which we want to read the dependencies file
+     * @param libraryName:    the name of the library from which we want to read the dependencies file
+     * @return A map of the library's dependencies: <dependency name, dependency version>
+     */
+    public Map<String, String> retrieveDependencies(String libraryVersion, String libraryName) {
+        String actualDependenciesFileUrl = convertURLVersion(dependenciesFileURL, libraryName,libraryVersion);
+
+        String content = readDependenciesFile(actualDependenciesFileUrl, libraryName, libraryVersion);
+
+        return DependenciesFileReader.read(actualDependenciesFileUrl);
+    }
+
+    // copy of doRetreive method
+    private void readDependenciesFile(String sourceURL, String name, String version, FilePath target,
+                            @Nonnull TaskListener listener, Run<?, ?> run)
+            throws InterruptedException, IOException, URISyntaxException {
+
+        UsernamePasswordCredentials passwordCredentials = initPasswordCredentials(run);
+
+        String zipFileName = FilenameUtils.getName(new URL(sourceURL).getPath());
+        FilePath dir = getDownloadFolder(name, run);
+        Computer computer = getSlave();
+
+        try (WorkspaceList.Lease lease = getWorkspace(dir, computer)) {
+
+            FilePath filePath = download(sourceURL, passwordCredentials, zipFileName, lease);
+            unzip(lease, filePath);
+
+            // Read version in version.txt if existing
+            String versionMessage = "";
+            String resolvedVersion = readVersion(lease.path);
+
+            if (resolvedVersion != null) {
+                resolvedVersion = resolvedVersion.trim();
+
+                // Just in case the version.txt would contain some new lines...
+                if (!resolvedVersion.equals(version)) {
+                    versionMessage = "Resolving version " + resolvedVersion + " of library " + name + "...\n";
+                }
+            }
+            versionMessage += "From HTTP URL: " + sourceURL;
+            listener.getLogger().println(versionMessage);
+
+            // Copying it in build folder
+            lease.path.copyRecursiveTo(target);
+
+        }
+    }
+
+
     // ---------- DESCRIPTOR ------------ //
 
     @Override
     public LibraryRetrieverDescriptor getDescriptor() {
         return super.getDescriptor();
     }
+
 
     @Symbol("http")
     @Extension

@@ -31,6 +31,8 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -244,6 +246,17 @@ public class HttpRetrieverTest {
         Assert.assertEquals(FormValidation.Kind.WARNING, validation.kind);
     }
 
+
+    @Test
+    public void testRetrieveDependencies() {
+
+        // Mock http call
+        // when...
+        Map<String, String> expectedMap = new HashMap<>();
+        expectedMap.put("dep1", "1.2.3");
+        expectedMap.put("dep2", "3.2.1");
+        Assert.assertEquals(expectedMap, retriever.retrieveDependencies("myLib", "1.0.0"));
+    }
 
     private class HttpRetrieverStub extends HttpRetriever {
 
